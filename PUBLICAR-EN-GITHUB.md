@@ -46,3 +46,27 @@ git push -u origin feature/HU-04-nombre-corto
 ```
 
 Luego abrir el Pull Request hacia `develop` desde la interfaz de GitHub.
+
+## Paso 5. Publicar el frontend con GitHub Pages
+
+Este paso da una direccion web propia para la interfaz, sin depender de ningun servicio externo.
+Requisito: el repositorio debe ser publico, porque GitHub Pages sobre repositorios privados exige
+plan de pago.
+
+1. En GitHub, entrar a Settings, General, y en Danger Zone usar "Change visibility" para dejar el
+   repositorio publico.
+2. Entrar a Settings, Pages. En "Source" elegir "Deploy from a branch". En "Branch" elegir `main`
+   y la carpeta `/ (root)`. Guardar.
+3. Esperar entre uno y dos minutos. La direccion queda asi:
+
+```
+https://<usuario>.github.io/martillo-erp/
+```
+
+El archivo `index.html` de la raiz redirige automaticamente a `frontend/index.html`, de modo que
+esa direccion abre la interfaz completa.
+
+Importante: la interfaz publicada entra en modo demostracion con datos de ejemplo, porque el
+backend corre en localhost y no es accesible desde internet. Para la demostracion con datos
+reales hay que levantar el backend y servir la carpeta `frontend` en el equipo, como explica
+`frontend/README.md`.
