@@ -97,3 +97,4 @@ Este código fue escrito siguiendo convenciones estándar de Spring Boot 3.x /
 Jakarta EE, pero **no pudo compilarse dentro de este entorno** por no tener acceso a
 Maven Central. Verifícalo con `mvn clean install` en tu máquina antes de dar por
 cerrado el DoD ("las pruebas unitarias pasan").
+
