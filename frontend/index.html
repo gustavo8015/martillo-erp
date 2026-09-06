@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Martillo ERP · Sprint 1</title>
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+<header class="cabecera">
+  <div class="marca">
+    <span class="logo">M</span>
+    <div>
+      <h1>Martillo ERP</h1>
+      <p>Gestión de casa de subastas · Sprint 1</p>
+    </div>
+  </div>
+  <div class="estado" id="estadoApi" data-estado="verificando">
+    <span class="punto"></span><span id="estadoTexto">Verificando API…</span>
+  </div>
+</header>
+
+<nav class="pestanas" role="tablist">
+  <button class="pestana activa" role="tab" data-panel="panelPiezas" aria-selected="true">Piezas <span class="hu">HU-01</span></button>
+  <button class="pestana" role="tab" data-panel="panelConsignantes" aria-selected="false">Consignantes <span class="hu">HU-02 · HU-03</span></button>
+</nav>
+
+<main>
+  <!-- PIEZAS -->
+  <section id="panelPiezas" class="panel activo" role="tabpanel">
+    <div class="columnas">
+      <form id="formPieza" class="tarjeta formulario" novalidate>
+        <h2>Registrar pieza</h2>
+        <p class="ayuda">HU-01. Como administrador de catálogo quiero registrar una pieza para poder gestionarla en futuras subastas.</p>
+
+        <label for="piezaNombre">Nombre de la pieza <span class="req">*</span></label>
+        <input id="piezaNombre" name="nombre" type="text" maxlength="120" required placeholder="Jarrón de porcelana">
+        <small class="error" id="errPiezaNombre"></small>
+
+        <label for="piezaCategoria">Categoría <span class="req">*</span></label>
+        <select id="piezaCategoria" name="categoria" required>
+          <option value="">Seleccione una categoría</option>
+          <option>Antigüedades</option>
+          <option>Arte</option>
+          <option>Joyería</option>
+          <option>Vehículos clásicos</option>
+          <option>Mobiliario</option>
+          <option>Otros</option>
+        </select>
+        <small class="error" id="errPiezaCategoria"></small>
+
+        <label for="piezaPrecio">Precio de reserva (COP) <span class="req">*</span></label>
+        <input id="piezaPrecio" name="precioReserva" type="number" min="1" step="1000" required placeholder="1500000">
+        <small class="error" id="errPiezaPrecio"></small>
+
+        <label for="piezaDescripcion">Descripción</label>
+        <textarea id="piezaDescripcion" name="descripcion" rows="3" maxlength="500" placeholder="Jarrón chino del siglo XIX, en buen estado de conservación."></textarea>
+
+        <div class="acciones">
+          <button type="submit" class="boton primario">Registrar pieza</button>
+          <button type="reset" class="boton">Limpiar</button>
+        </div>
+      </form>
+
+      <div class="tarjeta listado">
+        <div class="listado-cabecera">
+          <h2>Catálogo de piezas</h2>
+          <button class="boton pequeno" id="recargarPiezas">Actualizar</button>
+        </div>
+        <input class="buscador" id="buscarPieza" type="search" placeholder="Buscar por nombre o categoría">
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Categoría</th><th class="num">Reserva</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="cuerpoPiezas"></tbody>
+          </table>
+        </div>
+        <p class="vacio" id="vacioPiezas" hidden>Todavía no hay piezas registradas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSIGNANTES -->
+  <section id="panelConsignantes" class="panel" role="tabpanel">
+    <div class="columnas">
+      <form id="formConsignante" class="tarjeta formulario" novalidate>
+        <h2>Registrar consignante</h2>
+        <p class="ayuda">HU-02. Como administrador quiero registrar un consignante con su información de contacto para poder asociarlo a piezas y subastas.</p>
+
+        <label for="conNombre">Nombre completo <span class="req">*</span></label>
+        <input id="conNombre" name="nombreCompleto" type="text" maxlength="120" required placeholder="Laura Gómez">
+        <small class="error" id="errConNombre"></small>
+
+        <div class="fila">
+          <div>
+            <label for="conTipoDoc">Tipo de documento <span class="req">*</span></label>
+            <select id="conTipoDoc" name="tipoDocumento" required>
+              <option value="CC">CC</option>
+              <option value="CE">CE</option>
+              <option value="NIT">NIT</option>
+              <option value="PA">Pasaporte</option>
+            </select>
+          </div>
+          <div>
+            <label for="conNumDoc">Número <span class="req">*</span></label>
+            <input id="conNumDoc" name="numeroDocumento" type="text" maxlength="20" required placeholder="123456789">
+            <small class="error" id="errConNumDoc"></small>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div>
+            <label for="conTelefono">Teléfono <span class="req">*</span></label>
+            <input id="conTelefono" name="telefono" type="tel" maxlength="20" required placeholder="3001234567">
+            <small class="error" id="errConTelefono"></small>
+          </div>
+          <div>
+            <label for="conEmail">Correo electrónico</label>
+            <input id="conEmail" name="email" type="email" maxlength="120" placeholder="laura@example.com">
+            <small class="error" id="errConEmail"></small>
+          </div>
+        </div>
+
+        <label for="conDireccion">Dirección</label>
+        <input id="conDireccion" name="direccion" type="text" maxlength="160" placeholder="Calle 10 # 20-30, Bogotá">
+
+        <div class="acciones">
+          <button type="submit" class="boton primario">Registrar consignante</button>
+          <button type="reset" class="boton">Limpiar</button>
+        </div>
+      </form>
+
+      <div class="tarjeta listado">
+        <div class="listado-cabecera">
+          <h2>Consignantes registrados <span class="hu">HU-03</span></h2>
+          <button class="boton pequeno" id="recargarConsignantes">Actualizar</button>
+        </div>
+        <input class="buscador" id="buscarConsignante" type="search" placeholder="Buscar por nombre o documento">
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Correo</th></tr>
+            </thead>
+            <tbody id="cuerpoConsignantes"></tbody>
+          </table>
+        </div>
+        <p class="vacio" id="vacioConsignantes" hidden>Todavía no hay consignantes registrados.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pie">
+  <span>Universidad Manuela Beltrán · Ingeniería de Software · Arquitectura de Software A1</span>
+  <span>API: <code id="urlApi">http://localhost:8080</code></span>
+</footer>
+
+<div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Compilacion Maven
+target/
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# Entornos de desarrollo
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Registros y datos locales
+*.log
+*.db
+data/
