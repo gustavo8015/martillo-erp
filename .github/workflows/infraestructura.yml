@@ -1,0 +1,108 @@
+# Verificacion de los cambios de infraestructura (Sprint 2, TT-01).
+#
+# Se dispara ante Pull Request, merge y commit directo sobre develop cuando el
+# cambio toca la infraestructura. El Pull Request solo valida; el push (que es
+# el resultado de un merge o de un commit directo) ademas despliega y verifica.
+name: Infraestructura
+
+on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infraestructura.yml'
+  push:
+    branches: [develop]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infraestructura.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+
+  validar:
+    name: Validar la infraestructura declarada
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar la sintaxis del archivo de Compose
+        run: docker compose -f infra/docker-compose.yml config --quiet
+
+      - name: Comprobar la sintaxis de los manifiestos de Kubernetes
+        run: |
+          python3 - <<'PY'
+          import glob, sys, yaml
+          for archivo in sorted(glob.glob('infra/k8s/*.yaml')):
+              try:
+                  list(yaml.safe_load_all(open(archivo, encoding='utf-8')))
+                  print('ok', archivo)
+              except Exception as error:
+                  print('error en', archivo, error); sys.exit(1)
+          PY
+
+      - name: Buscar credenciales escritas en la infraestructura
+        run: |
+          if grep -rInE '(password|secret|secreto|token)[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9@#$%^&*_-]{8,}' \
+               infra/ --include='*.yml' --include='*.yaml' \
+             | grep -vE '\$\{|secretKeyRef|REEMPLAZAR_EN_EL_CLUSTER|from-literal'; then
+            echo "Se encontro una credencial escrita en la infraestructura."
+            exit 1
+          fi
+          echo "Sin credenciales escritas en la infraestructura."
+
+      - name: Construir la imagen del servicio
+        run: docker build -f infra/Dockerfile -t martillo-erp/servicio:verificacion .
+
+      - name: Dejar el resultado en el Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Infraestructura verificada: sintaxis de Compose y de los manifiestos de Kubernetes, ausencia de credenciales escritas y construccion de la imagen.'
+            })
+
+  desplegar-pruebas:
+    name: Desplegar y verificar en el ambiente de pruebas
+    needs: validar
+    # Cubre el merge del Pull Request y el commit directo sobre develop.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Levantar el ambiente
+        env:
+          DB_PRINCIPAL_PASSWORD: ${{ secrets.DB_PRINCIPAL_PASSWORD }}
+          DB_NOMINA_PASSWORD: ${{ secrets.DB_NOMINA_PASSWORD }}
+        run: docker compose -f infra/docker-compose.yml up --build --wait --wait-timeout 300
+
+      - name: Verificar la salud de los dos servicios
+        run: |
+          curl -fsS http://localhost:8080/actuator/health
+          curl -fsS http://localhost:8081/actuator/health
+
+      - name: Revertir si algo fallo
+        if: failure()
+        run: docker compose -f infra/docker-compose.yml down --volumes
+
+      - name: Recoger la bitacora
+        if: always()
+        run: docker compose -f infra/docker-compose.yml logs --no-color > bitacora-infraestructura.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bitacora-infraestructura
+          path: bitacora-infraestructura.txt
+
+      - name: Apagar el ambiente
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down --volumes

@@ -1,5 +1,7 @@
 package com.martillo.common;
 
+import com.martillo.seguridad.AccesoDenegadoException;
+import com.martillo.seguridad.CredencialesInvalidasException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,6 +23,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body(ex.getMessage()));
+    }
+
+    /** HU-09: el acceso denegado se responde con 403 y ya quedo en la auditoria. */
+    @ExceptionHandler(AccesoDenegadoException.class)
+    public ResponseEntity<Map<String, Object>> handleAccesoDenegado(AccesoDenegadoException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body(ex.getMessage()));
+    }
+
+    /** HU-11: el rechazo del inicio de sesion no revela el motivo. */
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<Map<String, Object>> handleCredenciales(CredencialesInvalidasException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body(ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleArgumento(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

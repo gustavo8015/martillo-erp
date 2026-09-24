@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Martillo ERP · Sprint 1</title>
+<title>Martillo ERP · Sprint 3</title>
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
@@ -12,17 +12,26 @@
     <span class="logo">M</span>
     <div>
       <h1>Martillo ERP</h1>
-      <p>Gestión de casa de subastas · Sprint 1</p>
+      <p>Gestión de casa de subastas · Sprint 3</p>
     </div>
   </div>
-  <div class="estado" id="estadoApi" data-estado="verificando">
-    <span class="punto"></span><span id="estadoTexto">Verificando API…</span>
+  <div class="barra-superior">
+    <button class="campana" id="campanaAlertas" type="button" aria-label="Alertas de stock crítico">
+      Alertas <span class="cuenta" id="cuentaAlertas">0</span>
+    </button>
+    <button class="boton pequeno tema" id="btnContraste" type="button" aria-pressed="false">Alto contraste</button>
+    <div class="estado" id="estadoApi" data-estado="verificando">
+      <span class="punto"></span><span id="estadoTexto">Verificando API…</span>
+    </div>
   </div>
 </header>
 
 <nav class="pestanas" role="tablist">
   <button class="pestana activa" role="tab" data-panel="panelPiezas" aria-selected="true">Piezas <span class="hu">HU-01</span></button>
   <button class="pestana" role="tab" data-panel="panelConsignantes" aria-selected="false">Consignantes <span class="hu">HU-02 · HU-03</span></button>
+  <button class="pestana" role="tab" data-panel="panelInventario" aria-selected="false">Inventario <span class="hu">HU-08</span></button>
+  <button class="pestana" role="tab" data-panel="panelNomina" aria-selected="false">Nómina <span class="hu">HU-07</span></button>
+  <button class="pestana" role="tab" data-panel="panelSeguridad" aria-selected="false">Seguridad <span class="hu">HU-09 · HU-11</span></button>
 </nav>
 
 <main>
@@ -149,6 +158,148 @@
       </div>
     </div>
   </section>
+
+  <!-- INVENTARIO -->
+  <section id="panelInventario" class="panel" role="tabpanel">
+    <div class="columnas">
+      <form id="formMovimiento" class="tarjeta formulario" novalidate>
+        <h2>Movimiento de inventario</h2>
+        <p class="ayuda">HU-08. Como responsable de bodega quiero enterarme cuando un insumo baja del umbral crítico, para reponerlo antes de que falte en una subasta.</p>
+
+        <label for="movItem">Insumo <span class="req">*</span></label>
+        <select id="movItem" name="codigo" required></select>
+
+        <label for="movCantidad">Cantidad <span class="req">*</span></label>
+        <input id="movCantidad" name="cantidad" type="number" min="1" step="1" required value="20">
+        <small class="error" id="errMovCantidad"></small>
+
+        <div class="acciones">
+          <button type="submit" class="boton primario">Registrar salida</button>
+          <button type="button" class="boton" id="btnEntrada">Registrar entrada</button>
+        </div>
+        <p class="nota-seguridad">El movimiento y la alerta se confirman en la misma transacción. Mientras el ítem siga en estado crítico no se repite la alerta.</p>
+      </form>
+
+      <div class="tarjeta listado">
+        <div class="listado-cabecera">
+          <h2>Insumos de bodega</h2>
+          <button class="boton pequeno" id="recargarInventario">Actualizar</button>
+        </div>
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr><th>Código</th><th>Insumo</th><th class="num">Stock</th><th class="num">Umbral</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="cuerpoInventario"></tbody>
+          </table>
+        </div>
+        <div class="resultado" id="listaAlertas"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NÓMINA -->
+  <section id="panelNomina" class="panel" role="tabpanel">
+    <div class="columnas">
+      <form id="formLiquidacion" class="tarjeta formulario" novalidate>
+        <h2>Liquidar contrato</h2>
+        <p class="ayuda">HU-07. Como responsable de nómina quiero calcular la liquidación de un empleado al terminar su contrato, para pagarle lo que la ley le reconoce según el tipo de contrato.</p>
+
+        <label for="liqTipo">Tipo de contrato <span class="req">*</span></label>
+        <select id="liqTipo" name="tipoContrato" required>
+          <option value="INDEFINIDO">A término indefinido</option>
+          <option value="FIJO">A término fijo</option>
+          <option value="OBRA_LABOR">Por obra o labor</option>
+        </select>
+
+        <label for="liqSalario">Salario mensual (COP) <span class="req">*</span></label>
+        <input id="liqSalario" name="salarioMensual" type="number" min="1" step="1000" required value="2500000">
+        <small class="error" id="errLiqSalario"></small>
+
+        <div class="fila">
+          <div>
+            <label for="liqIngreso">Fecha de ingreso <span class="req">*</span></label>
+            <input id="liqIngreso" name="fechaIngreso" type="date" required value="2026-01-01">
+          </div>
+          <div>
+            <label for="liqRetiro">Fecha de retiro <span class="req">*</span></label>
+            <input id="liqRetiro" name="fechaRetiro" type="date" required value="2026-09-30">
+          </div>
+        </div>
+
+        <div id="cajaFinPactado" hidden>
+          <label for="liqFinPactado">Vencimiento pactado <span class="req">*</span></label>
+          <input id="liqFinPactado" name="finPactado" type="date" value="2026-12-31">
+          <small class="error" id="errLiqFinPactado"></small>
+        </div>
+
+        <label for="liqMotivo">Motivo de terminación <span class="req">*</span></label>
+        <select id="liqMotivo" name="motivo" required>
+          <option value="SIN_JUSTA_CAUSA">Despido sin justa causa</option>
+          <option value="RENUNCIA">Renuncia</option>
+          <option value="JUSTA_CAUSA">Terminación con justa causa</option>
+        </select>
+
+        <div class="acciones">
+          <button type="submit" class="boton primario">Calcular liquidación</button>
+        </div>
+        <p class="nota-seguridad">Este módulo solo responde al rol responsable de nómina. El salario mínimo y el auxilio de transporte se leen como parámetros con fecha de vigencia (ADR-005).</p>
+      </form>
+
+      <div class="tarjeta listado">
+        <div class="listado-cabecera">
+          <h2>Resultado de la liquidación</h2>
+        </div>
+        <div class="resultado" id="resultadoLiquidacion">
+          <p class="vacio">Calcule una liquidación para ver el desglose por concepto.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGURIDAD -->
+  <section id="panelSeguridad" class="panel" role="tabpanel">
+    <div class="columnas">
+      <form id="formLogin" class="tarjeta formulario" novalidate>
+        <h2>Inicio de sesión</h2>
+        <p class="ayuda">HU-11. La verificación reCAPTCHA v3 ocurre en el servidor: se acepta el intento solo si la respuesta indica éxito, la acción es «login» y la puntuación es de al menos 0,5.</p>
+
+        <label for="logUsuario">Usuario <span class="req">*</span></label>
+        <input id="logUsuario" name="usuario" type="text" required value="nomina" autocomplete="username">
+        <small class="error" id="errLogUsuario"></small>
+
+        <label for="logClave">Contraseña <span class="req">*</span></label>
+        <input id="logClave" name="contrasena" type="password" required autocomplete="current-password">
+        <small class="error" id="errLogClave"></small>
+
+        <label for="logPuntuacion">Puntuación simulada de reCAPTCHA</label>
+        <input id="logPuntuacion" name="puntuacion" type="range" min="0" max="1" step="0.1" value="0.9">
+        <small id="valorPuntuacion">0,9</small>
+
+        <div class="acciones">
+          <button type="submit" class="boton primario">Iniciar sesión</button>
+          <button type="button" class="boton" id="btnSalir">Cerrar sesión</button>
+        </div>
+        <p class="nota-seguridad">El control deslizante existe solo para la demostración del Sprint Review. En el sistema publicado el token lo emite Google y la puntuación nunca la decide el navegador.</p>
+      </form>
+
+      <div class="tarjeta listado">
+        <div class="listado-cabecera">
+          <h2>Matriz de acceso por rol <span class="hu">HU-09</span></h2>
+          <span class="etiqueta" id="sesionActual">Sin sesión</span>
+        </div>
+        <div class="tabla-contenedor">
+          <table class="matriz">
+            <thead>
+              <tr><th>Módulo</th><th>Administrador</th><th>Resp. nómina</th><th>Catalogador</th><th>Auditor</th></tr>
+            </thead>
+            <tbody id="cuerpoMatriz"></tbody>
+          </table>
+        </div>
+        <div class="resultado" id="pistaAuditoria"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="pie">
@@ -161,5 +312,6 @@
 
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
+<script src="js/sprint3.js"></script>
 </body>
 </html>

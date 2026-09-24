@@ -1,0 +1,29 @@
+# El Ingress termina TLS y enruta por ruta hacia los dos servicios.
+# La interfaz web permanece publicada en GitHub Pages.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: martillo-erp
+  namespace: martillo-erp
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+    - hosts: [api.martillo-erp.example]
+      secretName: martillo-tls
+  rules:
+    - host: api.martillo-erp.example
+      http:
+        paths:
+          - path: /api/nomina
+            pathType: Prefix
+            backend:
+              service:
+                name: servicio-nomina
+                port: { number: 80 }
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: servicio-principal
+                port: { number: 80 }

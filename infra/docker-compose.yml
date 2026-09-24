@@ -1,0 +1,98 @@
+# Infraestructura declarada como codigo (Sprint 2, vigente en el Sprint 3).
+#
+# Dos unidades desplegables, cada una con su propia base de datos:
+#   servicio principal (8080): consignantes, catalogo y lotes, subastas,
+#   inventario, seguridad y roles.
+#   servicio de nomina (8081): nomina, liquidacion y parametros legales.
+#
+# Ambos se construyen del mismo artefacto y se separan por perfil de Spring,
+# de modo que cada uno se despliega, escala y reinicia por separado (ADR-001).
+# Las credenciales llegan por variable de entorno y nunca se escriben aqui.
+
+services:
+
+  base-principal:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: martillo
+      POSTGRES_USER: martillo
+      POSTGRES_PASSWORD: ${DB_PRINCIPAL_PASSWORD:?falta DB_PRINCIPAL_PASSWORD}
+    volumes:
+      - datos-principal:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U martillo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [interna]
+
+  base-nomina:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: martillo_nomina
+      POSTGRES_USER: martillo_nomina
+      POSTGRES_PASSWORD: ${DB_NOMINA_PASSWORD:?falta DB_NOMINA_PASSWORD}
+    volumes:
+      - datos-nomina:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U martillo_nomina"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [nomina]
+
+  servicio-principal:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://base-principal:5432/martillo
+      SPRING_DATASOURCE_USERNAME: martillo
+      SPRING_DATASOURCE_PASSWORD: ${DB_PRINCIPAL_PASSWORD:?falta DB_PRINCIPAL_PASSWORD}
+      MARTILLO_RECAPTCHA_SECRETO: ${RECAPTCHA_SECRETO:-}
+      SERVER_PORT: "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      base-principal:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks: [interna]
+
+  servicio-nomina:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://base-nomina:5432/martillo_nomina
+      SPRING_DATASOURCE_USERNAME: martillo_nomina
+      SPRING_DATASOURCE_PASSWORD: ${DB_NOMINA_PASSWORD:?falta DB_NOMINA_PASSWORD}
+      SERVER_PORT: "8081"
+    ports:
+      - "8081:8081"
+    depends_on:
+      base-nomina:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    # Solo el servicio de nomina alcanza la base de nomina.
+    networks: [interna, nomina]
+
+volumes:
+  datos-principal:
+  datos-nomina:
+
+networks:
+  interna:
+  nomina:

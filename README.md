@@ -1,4 +1,4 @@
-# Martillo ERP — Backend (Sprint 1)
+# Martillo ERP
 
 Servicio backend para la gestión básica de **Piezas** y **Consignantes**, construido con
 **Java 17 + Spring Boot 3 + Spring Data JPA**, siguiendo principios SOLID (SRP y DIP
@@ -15,6 +15,84 @@ explícitamente aplicados vía interfaces de servicio e inyección de dependenci
 - **HU-01** — Registrar una pieza en el catálogo.
 - **HU-02** — Registrar un consignante con su información de contacto.
 - **HU-03** — Ver la lista de todos los consignantes registrados.
+
+## Sprint 3
+
+Entregas funcionales del Sprint 3, con su documentación de arquitectura.
+
+| Historia | Entrega | Dónde está |
+|----------|---------|------------|
+| **HU-07** | Motor de liquidación de contratos según su tipo | `src/main/java/com/martillo/nomina/` |
+| **HU-08** | Alerta de stock crítico del inventario | `src/main/java/com/martillo/inventario/` |
+| **HU-09** | Control de acceso por roles verificado en el servidor | `src/main/java/com/martillo/seguridad/` |
+| **HU-10** | Modo de alto contraste, WCAG 2.2 nivel AAA | `frontend/css/estilos.css`, `frontend/js/sprint3.js` |
+| **HU-11** | Verificación reCAPTCHA v3 en el inicio de sesión | `src/main/java/com/martillo/seguridad/` |
+| **TT-01** | ADR, diagramas C4 y despliegue | `docs/adr/`, `docs/diagramas/`, `infra/k8s/` |
+
+### Motor de liquidación
+
+Calcula cesantías, intereses sobre cesantías, prima de servicios, vacaciones e
+indemnización con el calendario comercial de 30 días por mes y 360 por año.
+Base normativa: Decreto 2663 de 1950 (Código Sustantivo del Trabajo), artículos
+64, 186, 249 y 306, y Ley 52 de 1975.
+
+Caso de referencia verificado en `CalculadoraLiquidacionTest`: salario de
+$2.500.000, ingreso el 1 de enero de 2026 y retiro el 30 de septiembre de 2026
+sin justa causa.
+
+| Concepto | Indefinido | Término fijo | Obra o labor |
+|----------|-----------:|-------------:|-------------:|
+| Cesantías | 2.061.821 | 2.061.821 | 2.061.821 |
+| Intereses sobre cesantías | 185.564 | 185.564 | 185.564 |
+| Prima de servicios | 687.274 | 687.274 | 687.274 |
+| Vacaciones | 937.500 | 937.500 | 937.500 |
+| Indemnización sin justa causa | 2.500.000 | 7.500.000 | 3.750.000 |
+| **Total a pagar** | **6.372.159** | **11.372.159** | **7.622.159** |
+
+El salario mínimo y el auxilio de transporte no son constantes del código sino
+parámetros con fecha de vigencia (ADR-005), de modo que la liquidación de un
+periodo cerrado se reproduce.
+
+### Usuarios de la demostración
+
+| Usuario | Rol | Alcance |
+|---------|-----|---------|
+| `admin` | Administrador | Administración, catálogo e inventario |
+| `nomina` | Responsable de nómina | Solo nómina y liquidación |
+| `catalogo` | Catalogador | Catálogo e inventario |
+| `auditor` | Auditor | Lectura de catálogo e inventario, y auditoría |
+
+Contraseña de demostración: `martillo2026`. Este directorio es únicamente para
+el Sprint Review y se sustituye por el directorio institucional a través de la
+interfaz `DirectorioUsuarios`.
+
+### Variables de entorno
+
+| Variable | Para qué sirve |
+|----------|----------------|
+| `MARTILLO_RECAPTCHA_SECRETO` | Clave secreta de reCAPTCHA v3. Sin ella la verificación falla cerrada |
+| `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | Conexión a PostgreSQL |
+| `DB_PRINCIPAL_PASSWORD`, `DB_NOMINA_PASSWORD` | Contraseñas de las dos bases en Docker Compose |
+
+Ninguna credencial se escribe en el repositorio y el flujo de integración
+continua lo verifica en cada Pull Request.
+
+### Infraestructura
+
+```bash
+# Ambiente actual (ADR-002)
+DB_PRINCIPAL_PASSWORD=... DB_NOMINA_PASSWORD=... \
+  docker compose -f infra/docker-compose.yml up --build
+
+# Destino documentado, no aplicado todavía
+cat infra/k8s/README.md
+```
+
+### Documentación
+
+- Decisiones de arquitectura: [`docs/adr/`](docs/adr/)
+- Diagramas C4 y de despliegue: [`docs/diagramas/`](docs/diagramas/)
+- Documentación arc42 completa: Notion (ver el informe del sprint)
 
 ## Cómo correrlo (perfil por defecto: H2 en memoria, sin instalar nada más)
 

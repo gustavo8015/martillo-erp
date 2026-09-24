@@ -1,0 +1,25 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'16px'}}}%%
+flowchart TB
+    inicio["Contrato, fecha de retiro y motivo"]
+    parametros["Leer los parametros legales<br/>vigentes en la fecha de retiro"]
+    auxilio{"Salario menor o igual<br/>a 2 salarios minimos"}
+    base1["Base = salario + auxilio de transporte"]
+    base2["Base = salario"]
+    conceptos["Calcular cesantias, intereses,<br/>prima y vacaciones con dias de 360"]
+    motivo{"Terminacion sin justa causa"}
+    sinIndem["Indemnizacion = 0"]
+    tipo{"Tipo de contrato"}
+    fijo["Salarios que faltan<br/>hasta el vencimiento"]
+    obra["Salarios que faltan,<br/>minimo 15 dias"]
+    indefinido["30 dias el primer anio,<br/>20 si el salario es de 10 salarios<br/>minimos o mas, mas 20 o 15 por<br/>anio adicional proporcional"]
+    total["Total a pagar"]
+
+    inicio --> parametros --> auxilio
+    auxilio -->|"Si"| base1 --> conceptos
+    auxilio -->|"No"| base2 --> conceptos
+    conceptos --> motivo
+    motivo -->|"No"| sinIndem --> total
+    motivo -->|"Si"| tipo
+    tipo -->|"Termino fijo"| fijo --> total
+    tipo -->|"Obra o labor"| obra --> total
+    tipo -->|"Indefinido"| indefinido --> total

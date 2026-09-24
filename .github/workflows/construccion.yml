@@ -1,0 +1,30 @@
+# Construccion y pruebas del servicio ante cualquier Pull Request o commit.
+name: Construccion
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  construir:
+    name: Compilar y ejecutar las pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Ejecutar las pruebas
+        run: mvn -B clean verify
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-pruebas
+          path: target/surefire-reports/

@@ -1,0 +1,30 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'16px'}}}%%
+flowchart TB
+    navegador["Navegador del usuario"]
+    pages["GitHub Pages<br/>Aplicacion web"]
+
+    subgraph cluster["Cluster de Kubernetes, espacio de nombres martillo-erp"]
+        ingress["Ingress<br/>Termina TLS y enruta por ruta"]
+        depPrincipal["Deployment servicio-principal<br/>2 replicas, sondas readiness y liveness"]
+        depNomina["Deployment servicio-nomina<br/>2 replicas, sondas readiness y liveness"]
+        stsPrincipal[("StatefulSet base-principal<br/>PersistentVolumeClaim 5Gi")]
+        stsNomina[("StatefulSet base-nomina<br/>PersistentVolumeClaim 5Gi")]
+        secreto["Secret<br/>Credenciales de las bases y de reCAPTCHA"]
+        politica["NetworkPolicy<br/>Solo el servicio de nomina alcanza su base"]
+    end
+
+    iaNs["Espacio de nombres de IA<br/>Planificado"]
+
+    navegador --> pages
+    pages -->|"HTTPS"| ingress
+    ingress -->|"/api"| depPrincipal
+    ingress -->|"/api/nomina"| depNomina
+    depPrincipal --> stsPrincipal
+    depNomina --> stsNomina
+    secreto -.->|"inyecta"| depPrincipal
+    secreto -.->|"inyecta"| depNomina
+    politica -.->|"protege"| stsNomina
+    cluster -.->|"planificado"| iaNs
+
+    classDef planificado stroke-dasharray: 5 5;
+    class iaNs planificado;

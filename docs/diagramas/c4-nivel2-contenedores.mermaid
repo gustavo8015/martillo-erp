@@ -1,0 +1,28 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'16px'}}}%%
+flowchart TB
+    usuarios["Los cuatro roles<br/>Persona"]
+
+    subgraph martillo["Martillo ERP"]
+        web["Aplicacion web<br/>HTML, CSS y JavaScript en GitHub Pages<br/>Interfaz de los cuatro roles, modo de alto<br/>contraste y captura del token reCAPTCHA"]
+        principal["Servicio principal<br/>Java, Spring Boot, puerto 8080<br/>Monolito modular: consignantes, catalogo y<br/>lotes, subastas, inventario, seguridad y roles"]
+        servicioNomina["Servicio de nomina<br/>Java, Spring Boot, puerto 8081<br/>Nomina y liquidacion por tipo de contrato,<br/>parametros legales con vigencia"]
+        basePrincipal[("Base de datos principal<br/>Relacional<br/>Datos del dominio de la subasta")]
+        baseNomina[("Base de datos de nomina<br/>Relacional<br/>Empleados, contratos y parametros legales")]
+        asistente["Servicio de asistencia IA<br/>Modelo Transformer detras de una API<br/>Busqueda semantica y borradores<br/>de descripcion de lotes"]
+    end
+
+    recaptcha["Google reCAPTCHA<br/>Sistema externo"]
+    correo["Servicio de correo<br/>Sistema externo"]
+
+    usuarios -->|"HTTPS"| web
+    web -->|"JSON sobre HTTPS"| principal
+    web -->|"JSON sobre HTTPS, con el token del rol"| servicioNomina
+    web -->|"solicita el token de la accion login"| recaptcha
+    principal -->|"verifica el token con la clave secreta"| recaptcha
+    principal -->|"JDBC"| basePrincipal
+    principal -->|"envia la alerta de stock critico"| correo
+    servicioNomina -->|"JDBC"| baseNomina
+    principal -.->|"planificado"| asistente
+
+    classDef planificado stroke-dasharray: 5 5;
+    class asistente planificado;

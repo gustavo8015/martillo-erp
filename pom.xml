@@ -35,6 +35,12 @@
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
+    <!-- Sondas de salud usadas por Docker Compose y por Kubernetes (Sprint 3) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
     <!-- Base de datos de produccion (stack elegido para Martillo) -->
     <dependency>
       <groupId>org.postgresql</groupId>

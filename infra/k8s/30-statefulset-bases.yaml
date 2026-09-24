@@ -1,0 +1,98 @@
+# Las dos bases de datos son StatefulSets separados, cada una con su volumen.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: base-principal
+  namespace: martillo-erp
+spec:
+  serviceName: base-principal
+  replicas: 1
+  selector:
+    matchLabels: { app: base-principal }
+  template:
+    metadata:
+      labels: { app: base-principal }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: martillo
+            - name: POSTGRES_USER
+              value: martillo
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-principal, key: password }
+          volumeMounts:
+            - name: datos
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: datos
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: base-principal
+  namespace: martillo-erp
+spec:
+  selector: { app: base-principal }
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: base-nomina
+  namespace: martillo-erp
+spec:
+  serviceName: base-nomina
+  replicas: 1
+  selector:
+    matchLabels: { app: base-nomina }
+  template:
+    metadata:
+      labels: { app: base-nomina }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: martillo_nomina
+            - name: POSTGRES_USER
+              value: martillo_nomina
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-nomina, key: password }
+          volumeMounts:
+            - name: datos
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: datos
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: base-nomina
+  namespace: martillo-erp
+spec:
+  selector: { app: base-nomina }
+  ports:
+    - port: 5432

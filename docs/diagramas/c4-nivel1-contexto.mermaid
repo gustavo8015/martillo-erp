@@ -1,0 +1,26 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'16px'}}}%%
+flowchart TB
+    admin["Administrador<br/>Persona"]
+    nomina["Responsable de nomina<br/>Persona"]
+    catalogador["Catalogador<br/>Persona"]
+    auditor["Auditor<br/>Persona"]
+
+    sistema["<b>Martillo ERP</b><br/>Sistema de gestion de la casa de subastas:<br/>catalogo, consignantes, inventario,<br/>nomina y control de acceso"]
+
+    recaptcha["Google reCAPTCHA<br/>Sistema externo"]
+    correo["Servicio de correo<br/>Sistema externo"]
+    dian["DIAN, facturacion electronica<br/>Sistema externo planificado"]
+    ia["Proveedor de modelos de IA<br/>Sistema externo planificado"]
+
+    admin --> sistema
+    nomina --> sistema
+    catalogador --> sistema
+    auditor --> sistema
+
+    sistema -->|"verifica el inicio de sesion"| recaptcha
+    sistema -->|"envia las alertas de stock critico"| correo
+    sistema -.->|"planificado"| dian
+    sistema -.->|"planificado"| ia
+
+    classDef planificado stroke-dasharray: 5 5;
+    class dian,ia planificado;

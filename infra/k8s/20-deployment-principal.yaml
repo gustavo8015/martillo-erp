@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicio-principal
+  namespace: martillo-erp
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: servicio-principal }
+  template:
+    metadata:
+      labels: { app: servicio-principal }
+    spec:
+      containers:
+        - name: servicio-principal
+          image: martillo-erp/servicio-principal:1.0.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: postgres
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://base-principal:5432/martillo
+            - name: SPRING_DATASOURCE_USERNAME
+              value: martillo
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-principal, key: password }
+            - name: MARTILLO_RECAPTCHA_SECRETO
+              valueFrom:
+                secretKeyRef: { name: recaptcha, key: secreto }
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8080 }
+            initialDelaySeconds: 20
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8080 }
+            initialDelaySeconds: 40
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicio-principal
+  namespace: martillo-erp
+spec:
+  selector: { app: servicio-principal }
+  ports:
+    - port: 80
+      targetPort: 8080

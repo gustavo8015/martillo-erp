@@ -1,0 +1,18 @@
+# Aislamiento de los datos salariales: la base de nomina solo acepta
+# conexiones del servicio de nomina (Ley 1581 de 2012, seccion 10 de arc42).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: base-nomina-solo-su-servicio
+  namespace: martillo-erp
+spec:
+  podSelector:
+    matchLabels: { app: base-nomina }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: servicio-nomina }
+      ports:
+        - protocol: TCP
+          port: 5432
