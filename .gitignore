@@ -21,3 +21,8 @@ Desktop.ini
 *.log
 *.db
 data/
+
+# Pruebas de la interfaz (Guia 8): dependencias y resultados locales
+node_modules/
+frontend/pruebas/test-results/
+frontend/pruebas/resultados/

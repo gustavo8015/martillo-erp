@@ -1,0 +1,12 @@
+{
+  "name": "martillo-erp-pruebas-interfaz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pruebas de extremo a extremo de la interfaz del Sprint 3 (Guia 8)",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.0"
+  }
+}

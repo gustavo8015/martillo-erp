@@ -129,7 +129,12 @@ const API = (function () {
       let detalle = 'Error ' + respuesta.status;
       try {
         const cuerpo = await respuesta.json();
-        detalle = cuerpo.mensaje || cuerpo.message || (cuerpo.errores && cuerpo.errores.join(', ')) || detalle;
+        // D-01 (Guia 8): el servidor envia el detalle por campo en un objeto
+        // "errores"; se muestra ese detalle antes que el mensaje generico.
+        const errores = cuerpo.errores
+          ? (Array.isArray(cuerpo.errores) ? cuerpo.errores : Object.values(cuerpo.errores))
+          : [];
+        detalle = errores.length ? errores.join(', ') : (cuerpo.mensaje || cuerpo.message || detalle);
       } catch (e) { /* la respuesta no traía cuerpo JSON */ }
       throw new Error(detalle);
     }

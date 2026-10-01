@@ -1,0 +1,38 @@
+<testsuites id="" name="" tests="13" failures="0" skipped="0" errors="0" time="9.787911">
+<testsuite name="defecto-mensajes-validacion.spec.js" timestamp="2026-10-01T17:56:22.074Z" hostname="" tests="1" failures="0" skipped="0" time="1.052" errors="0">
+<testcase name="CP-E2E-13 (D-01) La interfaz muestra el detalle de validacion que envia el servidor" classname="defecto-mensajes-validacion.spec.js" time="1.052">
+</testcase>
+</testsuite>
+<testsuite name="hu07-liquidacion.spec.js" timestamp="2026-10-01T17:56:22.074Z" hostname="" tests="3" failures="0" skipped="0" time="2.107" errors="0">
+<testcase name="HU-07 Liquidar un contrato de trabajo segun su tipo › CP-E2E-01 El responsable de nomina liquida el caso de referencia por $6.372.159" classname="hu07-liquidacion.spec.js" time="0.801">
+</testcase>
+<testcase name="HU-07 Liquidar un contrato de trabajo segun su tipo › CP-E2E-02 El contrato a termino fijo muestra el vencimiento pactado y paga $11.372.159" classname="hu07-liquidacion.spec.js" time="0.698">
+</testcase>
+<testcase name="HU-07 Liquidar un contrato de trabajo segun su tipo › CP-E2E-03 Un salario en cero se detiene en el formulario con su mensaje" classname="hu07-liquidacion.spec.js" time="0.608">
+</testcase>
+</testsuite>
+<testsuite name="hu08-inventario.spec.js" timestamp="2026-10-01T17:56:22.074Z" hostname="" tests="2" failures="0" skipped="0" time="1.21" errors="0">
+<testcase name="HU-08 Alertar el stock critico del inventario › CP-E2E-04 Una salida de 16 cajas deja EMB-001 en critico y enciende la campana" classname="hu08-inventario.spec.js" time="0.605">
+</testcase>
+<testcase name="HU-08 Alertar el stock critico del inventario › CP-E2E-05 Una segunda salida no repite la alerta y la reposicion la cierra" classname="hu08-inventario.spec.js" time="0.605">
+</testcase>
+</testsuite>
+<testsuite name="hu09-hu11-seguridad.spec.js" timestamp="2026-10-01T17:56:22.074Z" hostname="" tests="4" failures="0" skipped="0" time="2.348" errors="0">
+<testcase name="HU-09 Control de acceso por rol y HU-11 reCAPTCHA v3 › CP-E2E-06 Sin sesion de nomina la liquidacion responde acceso denegado" classname="hu09-hu11-seguridad.spec.js" time="0.552">
+</testcase>
+<testcase name="HU-09 Control de acceso por rol y HU-11 reCAPTCHA v3 › CP-E2E-07 Una puntuacion de 0,2 rechaza el inicio de sesion y no abre sesion" classname="hu09-hu11-seguridad.spec.js" time="0.623">
+</testcase>
+<testcase name="HU-09 Control de acceso por rol y HU-11 reCAPTCHA v3 › CP-E2E-08 Una contrasena incorrecta con puntuacion alta tambien se rechaza" classname="hu09-hu11-seguridad.spec.js" time="0.455">
+</testcase>
+<testcase name="HU-09 Control de acceso por rol y HU-11 reCAPTCHA v3 › CP-E2E-09 El auditor ve la pista de auditoria con los rechazos registrados" classname="hu09-hu11-seguridad.spec.js" time="0.718">
+</testcase>
+</testsuite>
+<testsuite name="hu10-alto-contraste.spec.js" timestamp="2026-10-01T17:56:22.074Z" hostname="" tests="3" failures="0" skipped="0" time="1.562" errors="0">
+<testcase name="HU-10 Activar el modo de alto contraste › CP-E2E-10 El boton activa el tema, actualiza aria-pressed y se conserva al recargar" classname="hu10-alto-contraste.spec.js" time="0.65">
+</testcase>
+<testcase name="HU-10 Activar el modo de alto contraste › CP-E2E-11 El texto principal alcanza 7:1 de contraste en el modo de alto contraste (WCAG 1.4.6, AAA)" classname="hu10-alto-contraste.spec.js" time="0.47">
+</testcase>
+<testcase name="HU-10 Activar el modo de alto contraste › CP-E2E-12 Las pestanas se recorren con el teclado y el foco es visible" classname="hu10-alto-contraste.spec.js" time="0.442">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,15 +1,20 @@
-# Construccion y pruebas del servicio ante cualquier Pull Request o commit.
+# Construccion y pruebas del servicio y de la interfaz (Guia 8, Sprint 3).
+# Se ejecuta en cada Pull Request y en cada commit de develop, main y sprint3.
 name: Construccion
 
 on:
   pull_request:
     branches: [develop, main]
   push:
-    branches: [develop, main]
+    branches: [develop, main, sprint3]
+
+permissions:
+  contents: read
+  checks: write
 
 jobs:
   construir:
-    name: Compilar y ejecutar las pruebas
+    name: Compilar y ejecutar las pruebas del backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,11 +25,69 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Ejecutar las pruebas
+      - name: Ejecutar las pruebas unitarias y de integracion
         run: mvn -B clean verify
+
+      - name: Publicar el resultado de las pruebas del backend
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Pruebas del backend (JUnit 5)
+          path: target/surefire-reports/TEST-*.xml
+          reporter: java-junit
+
+      - name: Resumir la cobertura de JaCoCo
+        if: always()
+        run: |
+          if [ -f target/site/jacoco/jacoco.csv ]; then
+            awk -F, 'NR>1 {lf+=$8; lc+=$9; bf+=$6; bc+=$7}
+              END {printf "Cobertura de lineas %.1f%% (%d de %d), de ramas %.1f%% (%d de %d)\n",
+                   100*lc/(lc+lf), lc, lc+lf, 100*bc/(bc+bf), bc, bc+bf}' \
+              target/site/jacoco/jacoco.csv | tee cobertura.txt
+            echo "::notice title=Cobertura JaCoCo::$(cat cobertura.txt)"
+            cat cobertura.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: resultados-pruebas
-          path: target/surefire-reports/
+          name: resultados-pruebas-backend
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+
+  interfaz:
+    name: Pruebas de extremo a extremo de la interfaz
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/pruebas
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Playwright y Chromium
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Ejecutar las pruebas de la interfaz
+        run: npx playwright test
+
+      - name: Publicar el resultado de las pruebas de la interfaz
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Pruebas de la interfaz (Playwright)
+          path: frontend/pruebas/resultados/junit-interfaz.xml
+          reporter: java-junit
+          working-directory: .
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-pruebas-interfaz
+          path: frontend/pruebas/resultados/
