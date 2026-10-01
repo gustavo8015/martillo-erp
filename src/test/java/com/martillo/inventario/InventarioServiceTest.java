@@ -14,6 +14,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +42,9 @@ class InventarioServiceTest {
         cajas = new ItemInventario("EMB-001", "Cajas de embalaje", 40, 25);
 
         when(items.findByCodigo("EMB-001")).thenReturn(Optional.of(cajas));
-        when(items.save(any(ItemInventario.class))).thenAnswer(i -> i.getArgument(0));
+        // D-02 (Guia 8): la salida rechazada nunca llega a guardar, de modo que
+        // este stub es opcional; sin lenient Mockito estricto falla la prueba.
+        lenient().when(items.save(any(ItemInventario.class))).thenAnswer(i -> i.getArgument(0));
         guardadas.clear();
     }
 
@@ -109,5 +112,7 @@ class InventarioServiceTest {
     @DisplayName("No se puede sacar mas stock del disponible")
     void salidaMayorAlStock() {
         assertThrows(IllegalArgumentException.class, () -> servicio.registrarSalida("EMB-001", 100));
+        assertEquals(40, cajas.getStock());
+        verify(items, never()).save(any(ItemInventario.class));
     }
 }
