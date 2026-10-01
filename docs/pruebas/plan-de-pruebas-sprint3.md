@@ -49,5 +49,6 @@ npx playwright install chromium
 npx playwright test          # reporte en resultados/reporte-html
 ```
 
-Las capturas de `evidencias/` las tomó Playwright durante la ejecución.
+Las capturas de `evidencias/` las tomó Playwright durante la ejecución; las de
+`evidencias/jira/` muestran el registro de esta evidencia en las historias KAN-57 a KAN-61.
 El informe completo está en `docs/Guia8-Testing-Sprint3-MartilloERP.docx`.
