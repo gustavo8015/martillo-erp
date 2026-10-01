@@ -171,8 +171,20 @@ com.martillo
 
 ## Nota de verificación
 
-Este código fue escrito siguiendo convenciones estándar de Spring Boot 3.x /
-Jakarta EE, pero **no pudo compilarse dentro de este entorno** por no tener acceso a
-Maven Central. Verifícalo con `mvn clean install` en tu máquina antes de dar por
-cerrado el DoD ("las pruebas unitarias pasan").
+Desde la Guía 8 el proyecto se compila y se prueba con `mvn clean verify` en
+GitHub Actions en cada commit de `develop`, `main` y `sprint3`. La corrida
+del 1 de octubre de 2026 sobre `e2ca984` terminó con las 62 pruebas aprobadas.
 
+## Pruebas del Sprint 3 (Guía 8)
+
+62 pruebas automáticas en tres niveles, ejecutadas por GitHub Actions en cada
+commit de `develop`, `main` y `sprint3`:
+
+| Nivel | Casos | Dónde está |
+|-------|------:|------------|
+| Unitario y rendimiento | 33 | `src/test/java/com/martillo/` |
+| Integración con MockMvc | 16 | `src/test/java/com/martillo/integracion/` |
+| Interfaz con Playwright | 13 | `frontend/pruebas/e2e/` |
+
+Cobertura de líneas del backend: 89,9 %. Plan, resultados y evidencias en
+`docs/pruebas/`.
