@@ -173,8 +173,8 @@
     const peticion = {
       tipoContrato: tipo,
       salarioMensual: Number($('#liqSalario').value),
-      fechaIngreso: $('#liqIngreso').value,
-      fechaRetiro: $('#liqRetiro').value,
+      fechaIngreso: $('#liqIngreso').value || null,
+      fechaRetiro: $('#liqRetiro').value || null,
       finPactado: tipo === 'INDEFINIDO' ? null : $('#liqFinPactado').value,
       motivo: $('#liqMotivo').value
     };

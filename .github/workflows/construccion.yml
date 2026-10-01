@@ -36,6 +36,25 @@ jobs:
           path: target/surefire-reports/TEST-*.xml
           reporter: java-junit
 
+      - name: Anotar el resultado de cada clase de prueba
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total = fallas = errores = omitidas = 0
+          for archivo in sorted(glob.glob('target/surefire-reports/TEST-*.xml')):
+              raiz = ET.parse(archivo).getroot()
+              total += int(raiz.get('tests', 0)); fallas += int(raiz.get('failures', 0))
+              errores += int(raiz.get('errors', 0)); omitidas += int(raiz.get('skipped', 0))
+              for caso in raiz.iter('testcase'):
+                  for tipo in ('failure', 'error'):
+                      nodo = caso.find(tipo)
+                      if nodo is not None:
+                          texto = ((nodo.get('message') or '') + ' ' + (nodo.text or '')[:600]).replace('\n', ' ')
+                          print(f"::error title={caso.get('classname')}.{caso.get('name')}::{texto}")
+          print(f"::notice title=Pruebas del backend::{total} pruebas, {fallas} fallas, {errores} errores, {omitidas} omitidas")
+          PY
+
       - name: Resumir la cobertura de JaCoCo
         if: always()
         run: |

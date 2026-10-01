@@ -64,9 +64,9 @@ class LiquidacionApiTest {
     }
 
     @Test
-    @DisplayName("CP-07.4 Una fecha de ingreso vacia responde 400 con el detalle por campo")
-    void fechaIngresoVacia() throws Exception {
-        String peticion = CASO_REFERENCIA.replace("\"2026-01-01\"", "\"\"");
+    @DisplayName("CP-07.4 Una fecha de ingreso nula responde 400 con el detalle por campo")
+    void fechaIngresoNula() throws Exception {
+        String peticion = CASO_REFERENCIA.replace("\"2026-01-01\"", "null");
         mvc.perform(post(URL).header("X-Rol", "RESPONSABLE_NOMINA")
                         .contentType(MediaType.APPLICATION_JSON).content(peticion))
                 .andExpect(status().isBadRequest())

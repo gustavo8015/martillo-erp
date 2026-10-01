@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -19,10 +20,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Pruebas de integracion de HU-08 con los datos de arranque de la demostracion:
  * cajas de embalaje EMB-001 con 40 unidades y umbral critico de 25.
  *
- * Cada prueba parte de un contexto limpio para que el stock no dependa del
- * orden de ejecucion.
+ * Cada prueba parte de un contexto limpio y de una base H2 propia, para que
+ * el stock no dependa del orden de ejecucion ni de otras clases de prueba que
+ * mantienen abierta la base compartida del perfil por defecto.
  */
 @SpringBootTest
+@TestPropertySource(properties = "spring.datasource.url=jdbc:h2:mem:inventario-${random.uuid}")
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class InventarioApiTest {
